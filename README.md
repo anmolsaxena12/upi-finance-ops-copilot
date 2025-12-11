@@ -34,6 +34,14 @@ Key functionalities include:
 
 ---
 
+## What is implemented now
+- Express backend with stubbed VPA validation, collect initiation, webhook status updates, refunds, reconciliation, synthetic LLM outreach drafts, and a live state snapshot.
+- In-memory datastore for quick demos (no external services required).
+- React 18 + Vite frontend that exercises the backend flows (VPA checks, collect initiation, outreach drafts, and state viewer).
+- CORS enabled for local dev and simple logging via morgan.
+
+---
+
 ## Useful Resources and API Documentation
 - UPI Collect Request API: [Federal Bank UPI Collect API](https://developer.federalbank.co.in/fedbnkdev/dev/product/2491/api/2151)
 - VPA Validation APIs (e.g. Nimbbl, Razorpay, Paytm docs)
@@ -46,3 +54,43 @@ Key functionalities include:
 
 ## How to Contribute or Provide Feedback
 Contributions and suggestions are welcome via GitHub Issues and Pull Requests.
+
+---
+
+## Run the project locally
+
+Prereqs: Node.js 18+ and npm installed.
+
+### 1) Start the backend
+```
+cd backend
+npm install
+npm run dev
+```
+Server listens on `http://localhost:4000`.
+
+### 2) Start the frontend
+```
+cd frontend
+npm install
+VITE_API_URL=http://localhost:4000 npm run dev
+```
+Vite serves the React app on `http://localhost:5173`.
+
+### 3) Quick manual flows
+- **Health**: GET `http://localhost:4000/api/health`
+- **VPA check**: POST `http://localhost:4000/api/vpa/validate` with `{ "vpa": "name@bank" }`
+- **Collect**: POST `http://localhost:4000/api/collect/initiate` with `{ "payerVpa": "name@bank", "amount": 499, "invoiceId": "INV-123" }`
+- **Webhook simulation**: POST `http://localhost:4000/api/webhooks/collect` with `{ "collectId": "<id>", "status": "paid" }`
+- **Refund**: POST `http://localhost:4000/api/refunds` with `{ "paymentId": "<pay_id>", "amount": 100 }`
+- **Reconcile**: POST `http://localhost:4000/api/reconcile` with `{ "paymentId": "<pay_id>", "invoiceId": "INV-123" }`
+- **LLM draft**: POST `http://localhost:4000/api/llm/draft` with `{ "customerName": "Asha", "invoiceId": "INV-123", "amount": 499, "tone": "friendly" }`
+
+Use the React UI to drive the same flows without Postman.
+
+---
+
+## Project layout
+- `backend/` – Express server and in-memory workflow logic.
+- `frontend/` – Vite + React interface for the main flows.
+- `.gitignore` – Basic Node/Vite ignores.
